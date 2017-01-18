@@ -4,6 +4,9 @@ import TSim.TSimInterface;
 
 public class Main {
 
+	private static final String TSIM_EXECUTABLE = "/usr/local/bin/tsim";
+
+
 	/**
 	 * The main method expects 3-4 arguments, e.g.:
 	 * - command line: java -cp bin Main "Lab1.map" 5 10 20
@@ -16,7 +19,7 @@ public class Main {
 			Integer train2_speed = Integer.parseInt(args[2]);
 			Integer tsim_speed = (args.length >= 4) ? Integer.parseInt(args[3]) : 20;
 			
-			String tsimCommand = String.format("/usr/local/bin/tsim --speed=%d %s", tsim_speed, map);
+			String tsimCommand = String.format(TSIM_EXECUTABLE + " --speed=%d %s", tsim_speed, map);
 			Process p = Runtime.getRuntime().exec(tsimCommand);
 			TSimInterface.init(p.getInputStream(), p.getOutputStream());
 			TSimInterface.getInstance().setDebug(true);
