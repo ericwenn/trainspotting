@@ -31,8 +31,8 @@ public class Track {
 
     public static final int[] STATION_ONE_SWITCH_POSITION =     {17,  7};
     public static final int[] OVERTAKE_ONE_SWITCH_POSITION =    {15,  9};
-    public static final int[] OVERTAKE_TWO_SWITCH_POSITION =    { 4,  9};
-    public static final int[] STATION_TWO_SWITCH_POSITION =     { 3, 11};
+    public static final int[] OVERTAKE_TWO_SWITCH_POSITION =    {4,  9};
+    public static final int[] STATION_TWO_SWITCH_POSITION =     {3, 11};
 
 
     public Track() {

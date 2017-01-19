@@ -19,22 +19,5 @@ public class Lab1 {
 
         train_1_thread.start();
         train_2_thread.start();
-
-        /*try {
-            tsi.setSpeed(1,speed1);
-            tsi.setSpeed(2, speed2);
-
-            try {
-                SensorEvent sensor = tsi.getSensor(2);
-                System.out.println("Train 2 passed sensor");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        catch (CommandException e) {
-          e.printStackTrace();    // or only e.getMessage() for the error
-          System.exit(1);
-        }
-        */
     }
 }
