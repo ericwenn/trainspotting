@@ -99,6 +99,10 @@ public class Train implements Runnable {
                 tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
                 tSimInterface.setSpeed(trainId, fullSpeed());
 
+
+                tSimInterface.getSensor(trainId); // 6 activate
+                tSimInterface.getSensor(trainId); // 6 activate
+
                 tSimInterface.getSensor(trainId); // 6 activate
                 if( !isOnParallelTrack) {
                     overtakeSem.release();
@@ -126,14 +130,10 @@ public class Train implements Runnable {
                 tSimInterface.getSensor(trainId); // 9 activate
                 tSimInterface.getSensor(trainId); // 9 deactivate
 
-                System.out.println("Train "+trainId+" timeUntilBreak: "+timeUntilBreak());
-                System.out.println("Train "+trainId+" breakTime "+breakTime());
-                sleep(timeUntilBreak() - breakTime());
+                sleep(timeUntilBreak());
                 tSimInterface.setSpeed(trainId, 0);
                 sleep(breakTime());
-                System.out.println("Train stopped");
                 sleep(waitingTime());
-                System.out.println("Train is departing");
                 direction *= -1; // change direction
             }
 
@@ -147,16 +147,12 @@ public class Train implements Runnable {
         return trainId == 1 && direction == 1 || trainId == 2 && direction == -1;
     }
 
-    private boolean isGoingToStationOne() {
-        return !isGoingToStationTwo();
-    }
-
     private int fullSpeed() {
         return this.direction * this.initialSpeed;
     }
 
     private long timeUntilBreak() {
-        return (long) (4800 - (376.6 * initialSpeed) + (12 * Math.pow(initialSpeed, 2)) - (0.1333333333 * Math.pow(initialSpeed, 3)));
+        return (long) (47.94134 + 8896.056*Math.exp((-0.1638112*initialSpeed)));
     }
 
     private long breakTime() {
