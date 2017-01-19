@@ -43,7 +43,6 @@ public class Track {
         return stationOneSemaphore;
     }
 
-
     public Semaphore stationTwoSemaphore() {
         return stationTwoSemaphore;
     }
@@ -59,4 +58,5 @@ public class Track {
     public Semaphore overtakeSemaphore() {
         return overtakeSemaphore;
     }
+
 }
