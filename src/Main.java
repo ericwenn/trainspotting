@@ -24,7 +24,7 @@ public class Main {
 
 
 			TSimInterface.init(p.getInputStream(), p.getOutputStream());
-			TSimInterface.getInstance().setDebug(true);
+			TSimInterface.getInstance().setDebug(false);
 
 			new Lab1(train1_speed, train2_speed);
 			// new Lab2(train1_speed, train2_speed);

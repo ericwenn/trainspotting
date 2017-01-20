@@ -13,7 +13,10 @@ public class Train implements Runnable {
     private final Track track;
     private TSimInterface tSimInterface;
     private int direction;
-    private boolean isOnParallelTrack = false;
+
+    private boolean northStationPreferred = false;
+    private boolean overtakePreferred = false;
+    private boolean southStationPreferred = false;
 
     public Train(int trainId, int initialSpeed, Track track) {
         this.trainId = trainId;
@@ -21,6 +24,11 @@ public class Train implements Runnable {
         this.track = track;
         this.tSimInterface = TSimInterface.getInstance();
         this.direction = 1;
+        if( this.trainId == 1) {
+            northStationPreferred = true;
+        } else {
+            southStationPreferred = true;
+        }
     }
 
     @Override
@@ -31,11 +39,48 @@ public class Train implements Runnable {
         Semaphore criticalSectionSem;
         Semaphore overtakeSem;
         int releaseX, releaseY;
+
+        int stoppingDistance = 5;
+        int i;
+
+
+
         try {
-            criticalStationSem = isGoingToStationTwo() ? track.stationOneSemaphore() : track.stationTwoSemaphore();
+            criticalStationSem = isGoingToStationTwo() ? track.northStationSemaphore : track.southStationSemaphore;
             criticalStationSem.acquire();
+
+            boolean isOnPreferred;
+
             while(true) {
                 tSimInterface.setSpeed(trainId, fullSpeed());
+
+
+
+                if( isGoingToStationTwo() ) {
+                    Track.Node<Track.Sensor> stoppingNode = track.northStationCross.parents().get( northStationPreferred ? 0 : 1);
+                    for( i = 1; i < stoppingDistance; i++) {
+                        stoppingNode = stoppingNode.parents().get(0);
+                    }
+
+                    skipUntil(stoppingNode.data(), false);
+                    System.out.println("Train "+trainId+" started to break...");
+                    tSimInterface.setSpeed( trainId, 0);
+
+                    track.northStationCrossSemaphore.acquire();
+                    System.out.println("Train "+trainId+" acquired semaphore, accelerating...");
+                    tSimInterface.setSpeed(trainId, fullSpeed());
+
+                    Track.Node<Track.Sensor> releasingNode = track.northStationCross.children().get(0);
+                    skipUntil(releasingNode.data(), true);
+                    System.out.println("Train "+trainId+" passed semaphore, releasing...");
+                    track.northStationCrossSemaphore.release();
+                }
+
+
+
+
+
+                /*
                 criticalSectionSem = isGoingToStationTwo() ? track.criticalSectionOneSemaphore() : track.criticalSectionTwoSemaphore();
 
                 if( isOnParallelTrack ) {
@@ -170,6 +215,7 @@ public class Train implements Runnable {
                 sleep(breakTime());
                 sleep(waitingTime());
                 direction *= -1; // change direction
+                */
             }
 
         } catch (Exception e) {
@@ -184,6 +230,9 @@ public class Train implements Runnable {
         }
     }
 
+    private void skipUntil( Track.Sensor sensor, boolean untilPass) throws CommandException, InterruptedException {
+        skipUntil(sensor.posX, sensor.posY, untilPass);
+    }
     private void skipUntil(int posX, int posY, boolean untilPass) throws CommandException, InterruptedException {
         System.out.println("Train: " + trainId + " skipped sensors until: x:" + posX + " y:" + posY);
         int status = untilPass ? SensorEvent.ACTIVE : SensorEvent.INACTIVE;
