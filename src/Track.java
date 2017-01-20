@@ -109,12 +109,14 @@ public class Track {
         for(;x<20;x++) {
             currentNode = currentNode.addChild( new Sensor(x,y));
         }
+        x = 19;
 
 
         // until 19,9
-        for(;y<20;y++) {
+        for(;y<10;y++) {
             currentNode = currentNode.addChild( new Sensor(x,y));
         }
+        y = 9;
 
         // until 15,9
         for(;x> 14; x--) {
@@ -138,7 +140,6 @@ public class Track {
         for(;y<16;y++) {
             backTrackNode = backTrackNode.addParent( new Sensor(x,y));
         }
-
         // until 15,9
         backTrackNode.addParent(commonParent);
 

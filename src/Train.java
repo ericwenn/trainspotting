@@ -4,8 +4,6 @@ import TSim.TSimInterface;
 
 import java.util.concurrent.Semaphore;
 
-import static java.lang.Thread.sleep;
-
 public class Train implements Runnable {
 
     private final int trainId;
@@ -33,7 +31,7 @@ public class Train implements Runnable {
 
     @Override
     public void run() {
-        int[] switchPos;
+        Track.Sensor _switch;
         int switchDir;
         Semaphore criticalStationSem;
         Semaphore criticalSectionSem;
@@ -43,7 +41,8 @@ public class Train implements Runnable {
         int stoppingDistance = 5;
         int i;
 
-
+        Track.Node<Track.Sensor> stoppingNode;
+        Track.Node<Track.Sensor> releaseNode;
 
         try {
             criticalStationSem = isGoingToStationTwo() ? track.northStationSemaphore : track.southStationSemaphore;
@@ -57,7 +56,7 @@ public class Train implements Runnable {
 
 
                 if( isGoingToStationTwo() ) {
-                    Track.Node<Track.Sensor> stoppingNode = track.northStationCross.parents().get( northStationPreferred ? 0 : 1);
+                    stoppingNode = track.northStationCross.parents().get( northStationPreferred ? 0 : 1);
                     for( i = 1; i < stoppingDistance; i++) {
                         stoppingNode = stoppingNode.parents().get(0);
                     }
@@ -80,50 +79,126 @@ public class Train implements Runnable {
 
 
 
-                /*
-                criticalSectionSem = isGoingToStationTwo() ? track.criticalSectionOneSemaphore() : track.criticalSectionTwoSemaphore();
 
-                if( isOnParallelTrack ) {
-                    releaseX = isGoingToStationTwo() ? 11 : 12;
-                    releaseY = isGoingToStationTwo() ? 5 : 13;
+                Track.Node<Track.Sensor> stationSwitch = isGoingToStationTwo() ? track.northStationSwitch : track.southStationSwitch;
+
+                if( isGoingToStationTwo() ) {
+                    stoppingNode = stationSwitch.parents().get( northStationPreferred ? 0 : 1);
+                    for( i = 1; i < stoppingDistance; i++) {
+                        stoppingNode = stoppingNode.parents().get(0);
+                    }
+                    releaseNode = stationSwitch.children().get(0);
+
                 } else {
-                    releaseX = isGoingToStationTwo() ? 11 : 12;
-                    releaseY = isGoingToStationTwo() ? 3 : 11;
+                    stoppingNode = stationSwitch.children().get( southStationPreferred ? 0 : 1);
+                    for( i = 1; i < stoppingDistance; i++) {
+                        stoppingNode = stoppingNode.children().get(0);
+                    }
+                    releaseNode = stationSwitch.parents().get(0);
                 }
-
-
-                skipUntil(releaseX, releaseY, true);
-                skipSensor(nrOfSkips());
-                System.out.println("Train "+trainId+" skipped "+nrOfSkips()+" breaking sensors");
+                skipUntil(stoppingNode.data(), false);
+                System.out.println("Train "+trainId+" started to break...");
                 tSimInterface.setSpeed(trainId, 0);
 
+                criticalSectionSem = isGoingToStationTwo() ? track.eastCriticalSectionSemaphore : track.westCriticalSectionSemaphore;
                 criticalSectionSem.acquire();
+                System.out.println("Train "+trainId+" acquired critical section");
 
+                _switch = stationSwitch.data();
                 if (isGoingToStationTwo()) {
-                    switchPos = Track.STATION_ONE_SWITCH_POSITION;
-                    switchDir = isOnParallelTrack ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
-                }
-                else {
-                    switchPos = Track.STATION_TWO_SWITCH_POSITION;
-                    switchDir = isOnParallelTrack ? TSimInterface.SWITCH_RIGHT : TSimInterface.SWITCH_LEFT;
+                    switchDir = northStationPreferred ? TSimInterface.SWITCH_RIGHT : TSimInterface.SWITCH_LEFT;
+                } else {
+                    switchDir = southStationPreferred ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
                 }
 
-                tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
+                tSimInterface.setSwitch(_switch.posX, _switch.posY, switchDir);
                 tSimInterface.setSpeed(trainId, fullSpeed());
 
-                releaseX = isGoingToStationTwo() ? 18 : 2;
-                releaseY = isGoingToStationTwo() ? 7 : 11;
-                skipUntil(releaseX, releaseY, true);
+                skipUntil(releaseNode.data(), true);
+                criticalStationSem.release();
+                System.out.println("Train "+trainId+" releases station...");
 
-                System.out.println("Train " + trainId + " left station");
 
-                if(!isOnParallelTrack) {
-                    System.out.println("Train " + trainId + " releasing station lock");
-                    criticalStationSem.release();
+
+
+
+                Track.Node<Track.Sensor> overtakeSwitch = isGoingToStationTwo() ? track.overtakeEastSwitch : track.overtakeWestSwitch;
+                _switch = overtakeSwitch.data();
+                if( isGoingToStationTwo() ) {
+                    stoppingNode = overtakeSwitch.parents().get(0);
+                    for( i = 1; i < stoppingDistance; i++ ) {
+                        stoppingNode = stoppingNode.parents().get(0);
+                    }
+                } else {
+                    stoppingNode = overtakeSwitch.children().get(0);
+                    for( i = 1; i < stoppingDistance; i++ ) {
+                        stoppingNode = stoppingNode.children().get(0);
+                    }
+                }
+                System.out.println("Overtake:");
+                skipUntil(stoppingNode.data(), false);
+                System.out.println("Train "+1+" starts approaching overtake...");
+
+                if( track.overtakeSemaphore.availablePermits() == 0) {
+                    System.out.println("Train "+trainId+" takes parallell overtake route...");
+                    switchDir = isGoingToStationTwo() ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
+                } else {
+                    System.out.println("Train "+trainId+" takes preferred overtake route...");
+                    track.overtakeSemaphore.acquire();
+                    overtakePreferred = true;
+                    switchDir = isGoingToStationTwo() ? TSimInterface.SWITCH_RIGHT : TSimInterface.SWITCH_LEFT;
                 }
 
-                releaseX = isGoingToStationTwo() ? 17 : 1;
-                releaseY = isGoingToStationTwo() ? 9 : 9;
+                tSimInterface.setSwitch( _switch.posX, _switch.posY, switchDir);
+
+                if( overtakePreferred ) {
+                    releaseNode = isGoingToStationTwo() ? overtakeSwitch.children().get(0) : overtakeSwitch.parents().get(0);
+                } else {
+                    releaseNode = isGoingToStationTwo() ? overtakeSwitch.children().get(1) : overtakeSwitch.parents().get(1);
+                }
+                skipUntil( releaseNode.data(), true);
+                criticalSectionSem.release();
+
+
+
+
+
+                overtakeSwitch = isGoingToStationTwo() ? track.overtakeWestSwitch : track.overtakeEastSwitch;
+                if ( isGoingToStationTwo() ) {
+                    stoppingNode = overtakeSwitch.parents().get( overtakePreferred ? 0 : 1);
+                    for( i = 1; i < stoppingDistance; i++) {
+                        stoppingNode = stoppingNode.parents().get(0);
+                    }
+                    releaseNode = overtakeSwitch.children().get(0);
+                } else {
+                    stoppingNode = overtakeSwitch.children().get( overtakePreferred ? 0 : 1);
+                    for( i = 1; i < stoppingDistance; i++) {
+                        stoppingNode = stoppingNode.children().get(0);
+                    }
+                    releaseNode = overtakeSwitch.parents().get(0);
+                }
+
+                skipUntil( stoppingNode.data(), false);
+                tSimInterface.setSpeed(trainId,0);
+                System.out.println("Train "+trainId+" approaching end of overtake");
+                criticalSectionSem = isGoingToStationTwo() ? track.westCriticalSectionSemaphore : track.eastCriticalSectionSemaphore;
+
+                criticalSectionSem.acquire();
+                System.out.println("Train "+trainId+" acquired critical section");
+                tSimInterface.setSpeed(trainId, fullSpeed());
+
+                // Sätt switch
+
+
+
+
+
+
+
+
+
+
+                /*
 
                 skipUntil(releaseX, releaseY, false);
                 System.out.println("Train " + trainId + " is in front of overtake");
