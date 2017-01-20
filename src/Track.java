@@ -47,7 +47,7 @@ public class Track {
 
     public Track() {
 
-        int x = 17;
+        int x = 18;
         int y = 3;
         Node<Sensor> currentNode = new Node<>(new Sensor(x,y));
         northStationPreferredStop = currentNode;
@@ -97,7 +97,7 @@ public class Track {
 
         x = 9;
         y = 5;
-        for(;x<18;x++) {
+        for(;x<19;x++) {
             backTrackNode = backTrackNode.addParent(new Sensor(x,y));
         }
         northStationParallellStop = backTrackNode;
@@ -137,9 +137,10 @@ public class Track {
         backTrackNode = currentNode.addParent( new Sensor(x,y));
 
         // until 15,10
-        for(;y<16;y++) {
+        for(;x<16;x++) {
             backTrackNode = backTrackNode.addParent( new Sensor(x,y));
         }
+        x = 15;
         // until 15,9
         backTrackNode.addParent(commonParent);
 
@@ -152,10 +153,15 @@ public class Track {
             currentNode = currentNode.addChild( new Sensor(x,y));
         }
 
+        x = 1;
+
         // until 1,11
         for(;y < 12; y++) {
             currentNode = currentNode.addChild( new Sensor(x,y));
         }
+        y = 11;
+
+
         // until 3,11
         for(;x < 4;x++) {
             currentNode = currentNode.addChild( new Sensor(x,y));
@@ -183,6 +189,7 @@ public class Track {
         for(; y < 14; y++) {
             currentNode = currentNode.addChild( new Sensor(x,y));
         }
+        y = 13;
 
         // until 18,13
         for(; x < 19;x++) {
