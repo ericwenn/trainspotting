@@ -4,12 +4,12 @@ import java.util.concurrent.Semaphore;
 
 /**
  * Model representing track given in the problem statement.
- *   \  S1  /
- *    \    /    Station one semaphore
+ *          / S1     North station semaphore
+ *     ----/-----    North station cross semaphore
  *     \  /
  *      v
  *      |
- *      |       Critical section one semaphore
+ *      |       East critical section semaphore
  *      |
  *   --------
  *   |      |
@@ -17,10 +17,11 @@ import java.util.concurrent.Semaphore;
  *   |      |
  *   --------
  *      |
- *      |       Critical section two semaphore
+ *      |       West critical section semaphore
  *      |
+ *      ^
  *     / \
- *    /   \     Station two semaphore
+ *    /   \     South station semaphore
  *   /  S2 \
  */
 public class Track {
@@ -80,7 +81,7 @@ public class Track {
                 new Sensor(12,8),
             },
             {
-                new Sensor(7,8),
+                new Sensor(7,7),
                 new Sensor(6,7),
                 new Sensor(6,6),
                 new Sensor(6,4),
@@ -147,12 +148,12 @@ public class Track {
             },
             {
                     new Sensor(3,9),
-                    new Sensor(1,10),
+                    new Sensor(1,9),
             }
     };
 
 
-    protected Sensor[][] southStationCrossSensors = new Sensor[][] {
+    protected Sensor[][] southStationSwitchSensors = new Sensor[][] {
             {
             },
             {
@@ -174,14 +175,59 @@ public class Track {
     };
 
 
+    protected Sensor[][] northStationPreferredStopSensors = new Sensor[][] {
+            {}, {}, {},
+            // West
+            {
+                    new Sensor(17,3),
+                    new Sensor(16,3),
+                    new Sensor(15,3),
+                    new Sensor(13,3)
+            }
+    };
+
+    protected Sensor[][] northStationStopSensors = new Sensor[][] {
+            {}, {}, {},
+            // West
+            {
+                    new Sensor(17,5),
+                    new Sensor(16,5),
+                    new Sensor(15,5),
+                    new Sensor(13,5)
+            }
+    };
+
+    protected Sensor[][] southStationPreferredStopSensors = new Sensor[][] {
+            {}, {}, {},
+            // West
+            {
+                    new Sensor(16,11),
+                    new Sensor(17,11),
+                    new Sensor(15,11),
+                    new Sensor(13,11)
+            }
+    };
+
+    protected Sensor[][] southStationStopSensors = new Sensor[][] {
+            {}, {}, {},
+            // West
+            {
+                    new Sensor(17,13),
+                    new Sensor(16,13),
+                    new Sensor(15,13),
+                    new Sensor(13,13)
+            }
+    };
 
 
 
 
-    public static final int[] STATION_ONE_SWITCH_POSITION =     {17,  7};
-    public static final int[] OVERTAKE_ONE_SWITCH_POSITION =    {15,  9};
-    public static final int[] OVERTAKE_TWO_SWITCH_POSITION =    {4,  9};
-    public static final int[] STATION_TWO_SWITCH_POSITION =     {3, 11};
+
+
+    public static final int[] NORTH_STATION_SWITCH_POSITION =     {17,  7};
+    public static final int[] OVERTAKE_EAST_SWITCH_POSITION =    {15,  9};
+    public static final int[] OVERTAKE_WEST_SWITCH_POSITION =    {4,  9};
+    public static final int[] SOUTH_STATION_SWITCH_POSITION =     {3, 11};
 
 
     public Track() {
