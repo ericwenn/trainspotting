@@ -38,8 +38,27 @@ public class Train implements Runnable {
         Semaphore overtakeSem;
         int releaseX, releaseY;
 
+
+
+        int stoppingDistance;
+
+        if( initialSpeed < 11 ) {
+            stoppingDistance = 2;
+        } else if(initialSpeed < 17 ) {
+            stoppingDistance = 3;
+        } else if(initialSpeed < 27){
+            stoppingDistance = 4;
+        } else {
+            throw new IllegalArgumentException("Maximum speed is 26");
+        }
+
+
+
+
         Track.Sensor stopSensor;
         Track.Sensor releaseSensor;
+        Track.SensorDirection stopDirection;
+        Track.SensorDirection releaseDirection;
         try {
 
             criticalStationSem = isGoingToSouthStation() ? track.northStationSemaphore : track.southStationSemaphore;
@@ -59,10 +78,22 @@ public class Train implements Runnable {
 
 
                 if( isGoingToSouthStation() ) {
-                    Track.SensorDirection d = isOnPreferredNorthStation ? Track.SensorDirection.WEST : Track.SensorDirection.NORTH;
+                    stopDirection = isOnPreferredNorthStation ? Track.SensorDirection.WEST : Track.SensorDirection.NORTH;
+                    releaseDirection = isOnPreferredNorthStation ? Track.SensorDirection.EAST : Track.SensorDirection.SOUTH;
 
-                    stopSensor = track.northStationCrossSensors[d.v()][2];
+                    stopSensor = track.northStationCrossSensors[stopDirection.v()][ stoppingDistance ];
+                    releaseSensor = track.northStationCrossSensors[releaseDirection.v()][0];
 
+                    skipUntil( stopSensor.x, stopSensor.y, false);
+
+                    tSimInterface.setSpeed( trainId, 0);
+
+                    track.northStationCrossSemaphore.acquire();
+
+                    tSimInterface.setSpeed(trainId, fullSpeed());
+
+                    skipUntil(releaseSensor.x, releaseSensor.y, true);
+                    track.northStationCrossSemaphore.release();
 
 
                 }
