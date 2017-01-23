@@ -57,6 +57,7 @@ public class Track {
             currentNode = currentNode.addChild(new Sensor(x, y));
         }
 
+        
         x = 6;
         y = 3;
         for(;y < 8; y++) {

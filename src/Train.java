@@ -39,6 +39,7 @@ public class Train implements Runnable {
         Semaphore criticalSectionSem;
 
         int stoppingDistance;
+
         if( initialSpeed < 11 ) {
             stoppingDistance = 2;
         } else if(initialSpeed < 17 ) {
