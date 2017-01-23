@@ -15,6 +15,12 @@ public class Train implements Runnable {
     private int direction;
     private boolean isOnParallelTrack = false;
 
+
+    private boolean isOnPreferredNorthStation = false;
+    private boolean isOnPreferredSouthStation = false;
+    private boolean isOnPreferredOvertake = false;
+
+
     public Train(int trainId, int initialSpeed, Track track) {
         this.trainId = trainId;
         this.initialSpeed = initialSpeed;
@@ -31,19 +37,46 @@ public class Train implements Runnable {
         Semaphore criticalSectionSem;
         Semaphore overtakeSem;
         int releaseX, releaseY;
+
+        Track.Sensor stopSensor;
+        Track.Sensor releaseSensor;
         try {
-            criticalStationSem = isGoingToStationTwo() ? track.stationOneSemaphore() : track.stationTwoSemaphore();
+
+            criticalStationSem = isGoingToSouthStation() ? track.northStationSemaphore : track.southStationSemaphore;
             criticalStationSem.acquire();
+            if( isGoingToSouthStation() ) {
+                isOnPreferredNorthStation = true;
+            } else {
+                isOnPreferredSouthStation = true;
+            }
+
+
             while(true) {
+
                 tSimInterface.setSpeed(trainId, fullSpeed());
-                criticalSectionSem = isGoingToStationTwo() ? track.criticalSectionOneSemaphore() : track.criticalSectionTwoSemaphore();
+
+
+
+
+                if( isGoingToSouthStation() ) {
+                    Track.SensorDirection d = isOnPreferredNorthStation ? Track.SensorDirection.WEST : Track.SensorDirection.NORTH;
+
+                    stopSensor = track.northStationCrossSensors[d.v()][2];
+
+
+
+                }
+
+
+
+                criticalSectionSem = isGoingToSouthStation() ? track.criticalSectionOneSemaphore() : track.criticalSectionTwoSemaphore();
 
                 if( isOnParallelTrack ) {
-                    releaseX = isGoingToStationTwo() ? 11 : 12;
-                    releaseY = isGoingToStationTwo() ? 5 : 13;
+                    releaseX = isGoingToSouthStation() ? 11 : 12;
+                    releaseY = isGoingToSouthStation() ? 5 : 13;
                 } else {
-                    releaseX = isGoingToStationTwo() ? 11 : 12;
-                    releaseY = isGoingToStationTwo() ? 3 : 11;
+                    releaseX = isGoingToSouthStation() ? 11 : 12;
+                    releaseY = isGoingToSouthStation() ? 3 : 11;
                 }
 
 
@@ -54,7 +87,7 @@ public class Train implements Runnable {
 
                 criticalSectionSem.acquire();
 
-                if (isGoingToStationTwo()) {
+                if (isGoingToSouthStation()) {
                     switchPos = Track.STATION_ONE_SWITCH_POSITION;
                     switchDir = isOnParallelTrack ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
                 }
@@ -66,8 +99,8 @@ public class Train implements Runnable {
                 tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
                 tSimInterface.setSpeed(trainId, fullSpeed());
 
-                releaseX = isGoingToStationTwo() ? 18 : 2;
-                releaseY = isGoingToStationTwo() ? 7 : 11;
+                releaseX = isGoingToSouthStation() ? 18 : 2;
+                releaseY = isGoingToSouthStation() ? 7 : 11;
                 skipUntil(releaseX, releaseY, true);
 
                 System.out.println("Train " + trainId + " left station");
@@ -77,30 +110,30 @@ public class Train implements Runnable {
                     criticalStationSem.release();
                 }
 
-                releaseX = isGoingToStationTwo() ? 17 : 1;
-                releaseY = isGoingToStationTwo() ? 9 : 9;
+                releaseX = isGoingToSouthStation() ? 17 : 1;
+                releaseY = isGoingToSouthStation() ? 9 : 9;
 
                 skipUntil(releaseX, releaseY, false);
                 System.out.println("Train " + trainId + " is in front of overtake");
                 overtakeSem = track.overtakeSemaphore();
-                switchPos = isGoingToStationTwo() ? Track.OVERTAKE_ONE_SWITCH_POSITION : Track.OVERTAKE_TWO_SWITCH_POSITION;
+                switchPos = isGoingToSouthStation() ? Track.OVERTAKE_ONE_SWITCH_POSITION : Track.OVERTAKE_TWO_SWITCH_POSITION;
                 if (overtakeSem.availablePermits() == 0) { // A train is on overtake
-                    switchDir = isGoingToStationTwo() ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
+                    switchDir = isGoingToSouthStation() ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
                     isOnParallelTrack = true;
                 }
                 else {
                     overtakeSem.acquire();
-                    switchDir = isGoingToStationTwo() ? TSimInterface.SWITCH_RIGHT : TSimInterface.SWITCH_LEFT;
+                    switchDir = isGoingToSouthStation() ? TSimInterface.SWITCH_RIGHT : TSimInterface.SWITCH_LEFT;
                     isOnParallelTrack = false;
                 }
                 tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
 
                 if( isOnParallelTrack ) {
-                    releaseX = isGoingToStationTwo() ? 15 : 4;
-                    releaseY = isGoingToStationTwo() ? 10 : 10;
+                    releaseX = isGoingToSouthStation() ? 15 : 4;
+                    releaseY = isGoingToSouthStation() ? 10 : 10;
                 } else {
-                    releaseX = isGoingToStationTwo() ? 14 : 5;
-                    releaseY = isGoingToStationTwo() ? 9 : 9;
+                    releaseX = isGoingToSouthStation() ? 14 : 5;
+                    releaseY = isGoingToSouthStation() ? 9 : 9;
                 }
                 skipUntil(releaseX, releaseY, true);
 
@@ -109,11 +142,11 @@ public class Train implements Runnable {
 
                 skipSensor(nrOfSkips());
                 tSimInterface.setSpeed(trainId, 0);
-                criticalSectionSem = isGoingToStationTwo() ? track.criticalSectionTwoSemaphore() : track.criticalSectionOneSemaphore();
+                criticalSectionSem = isGoingToSouthStation() ? track.criticalSectionTwoSemaphore() : track.criticalSectionOneSemaphore();
                 criticalSectionSem.acquire();
 
-                switchPos = isGoingToStationTwo() ? Track.OVERTAKE_TWO_SWITCH_POSITION : Track.OVERTAKE_ONE_SWITCH_POSITION;
-                if (isGoingToStationTwo()) {
+                switchPos = isGoingToSouthStation() ? Track.OVERTAKE_TWO_SWITCH_POSITION : Track.OVERTAKE_ONE_SWITCH_POSITION;
+                if (isGoingToSouthStation()) {
                     switchDir = isOnParallelTrack ? TSimInterface.SWITCH_RIGHT : TSimInterface.SWITCH_LEFT;
                 }
                 else {
@@ -122,8 +155,8 @@ public class Train implements Runnable {
                 tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
                 tSimInterface.setSpeed(trainId, fullSpeed());
 
-                releaseX = isGoingToStationTwo() ? 3 : 16;
-                releaseY = isGoingToStationTwo() ? 9 : 9;
+                releaseX = isGoingToSouthStation() ? 3 : 16;
+                releaseY = isGoingToSouthStation() ? 9 : 9;
 
                 skipUntil(releaseX, releaseY, true);
                 System.out.println("Train "+trainId+" left overtake");
@@ -134,20 +167,20 @@ public class Train implements Runnable {
                 skipSensor(1);
                 tSimInterface.getSensor(trainId);
 
-                criticalStationSem = isGoingToStationTwo() ? track.stationTwoSemaphore() : track.stationOneSemaphore();
-                switchPos = isGoingToStationTwo() ? Track.STATION_TWO_SWITCH_POSITION : Track.STATION_ONE_SWITCH_POSITION;
+                criticalStationSem = isGoingToSouthStation() ? track.stationTwoSemaphore() : track.stationOneSemaphore();
+                switchPos = isGoingToSouthStation() ? Track.STATION_TWO_SWITCH_POSITION : Track.STATION_ONE_SWITCH_POSITION;
                 if (criticalStationSem.availablePermits() == 0) { // A train is on overtake
-                    switchDir = isGoingToStationTwo() ? TSimInterface.SWITCH_RIGHT : TSimInterface.SWITCH_LEFT;
-                    releaseX = isGoingToStationTwo() ? 3 : 17;
-                    releaseY = isGoingToStationTwo() ? 12 : 8;
+                    switchDir = isGoingToSouthStation() ? TSimInterface.SWITCH_RIGHT : TSimInterface.SWITCH_LEFT;
+                    releaseX = isGoingToSouthStation() ? 3 : 17;
+                    releaseY = isGoingToSouthStation() ? 12 : 8;
                     isOnParallelTrack = true;
                 }
                 else {
                     criticalStationSem.acquire();
-                    switchDir = isGoingToStationTwo() ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
+                    switchDir = isGoingToSouthStation() ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
                     isOnParallelTrack = false;
-                    releaseX = isGoingToStationTwo() ? 4 : 16;
-                    releaseY = isGoingToStationTwo() ? 11 : 7;
+                    releaseX = isGoingToSouthStation() ? 4 : 16;
+                    releaseY = isGoingToSouthStation() ? 11 : 7;
                 }
                 tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
                 skipUntil(releaseX, releaseY, true);
@@ -155,11 +188,11 @@ public class Train implements Runnable {
                 System.out.println("Train:" + trainId + " leaving critical section");
 
                 if(isOnParallelTrack) {
-                    releaseX = isGoingToStationTwo() ? 8 : 10; // TODO
-                    releaseY = isGoingToStationTwo() ? 13 : 8; // TODO
+                    releaseX = isGoingToSouthStation() ? 8 : 10; // TODO
+                    releaseY = isGoingToSouthStation() ? 13 : 8; // TODO
                 } else {
-                    releaseX = isGoingToStationTwo() ? 9 : 10;
-                    releaseY = isGoingToStationTwo() ? 11 : 7;
+                    releaseX = isGoingToSouthStation() ? 9 : 10;
+                    releaseY = isGoingToSouthStation() ? 11 : 7;
                 }
 
                 skipUntil(releaseX, releaseY, true);
@@ -204,7 +237,7 @@ public class Train implements Runnable {
     }
 
 
-    private boolean isGoingToStationTwo() {
+    private boolean isGoingToSouthStation() {
         return trainId == 1 && direction == 1 || trainId == 2 && direction == -1;
     }
 
