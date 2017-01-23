@@ -22,11 +22,17 @@ import java.util.concurrent.Semaphore;
  *   /  S2 \
  */
 public class Track {
-    private Semaphore stationOneSemaphore = new Semaphore(1, true);
-    private Semaphore stationTwoSemaphore = new Semaphore(1, true);
-    private Semaphore criticalSectionOneSemaphore = new Semaphore(1, true);
-    private Semaphore criticalSectionTwoSemaphore = new Semaphore(1, true);
-    private Semaphore overtakeSemaphore = new Semaphore(1, true);
+
+    protected Semaphore northStationSemaphore = new Semaphore(1, true);
+    protected Semaphore southStationSemaphore = new Semaphore(1, true);
+    protected Semaphore eastCriticalSectionSemaphore = new Semaphore(1, true);
+    protected Semaphore westCriticalSectionSemaphore = new Semaphore(1, true);
+    protected Semaphore overtakeSemaphore = new Semaphore(1, true);
+    protected Semaphore northStationCrossSemaphore = new Semaphore(1, true);
+
+
+
+
 
 
     public static final int[] STATION_ONE_SWITCH_POSITION =     {17,  7};
