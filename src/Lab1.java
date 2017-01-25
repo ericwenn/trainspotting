@@ -54,7 +54,9 @@ public class Lab1 {
 	/**
 	 * The Static inner class Track contains the positions of each Switch and Sensor as well as all 6 semaphores the
 	 * solution needs.
-	 * Each semaphore has neighbouring sensors saved in a matrix of Sensors.  
+	 * Each semaphore has neighbouring sensors saved in a matrix of Sensors.
+	 * Track also contains the inner class Sensor. The Class Sensor describes the position of the sensor.
+	 * SensorDirection is a enum which is used to describe the sensors position in relation to their neighbouring Semaphore.
 	 */
 
 	static class Track {
@@ -69,6 +71,36 @@ public class Lab1 {
 		Semaphore westCriticalSectionSemaphore = new Semaphore(1, true);
 		Semaphore overtakeSemaphore = new Semaphore(1, true);
 		Semaphore northStationCrossSemaphore = new Semaphore(1, true);
+
+		Track() {}
+
+		protected enum SensorDirection {
+			NORTH(0),
+			EAST(1),
+			SOUTH(2),
+			WEST(3);
+
+			private final int v;
+
+			SensorDirection(int v) {
+				this.v = v;
+			}
+
+			public int v() {
+				return this.v;
+			}
+		}
+
+		static class Sensor {
+			final int x;
+			final int y;
+
+			Sensor(int x, int y) {
+				this.x = x;
+				this.y = y;
+			}
+		}
+
 		Sensor[][] northStationCrossSensors = new Sensor[][]{
 				{
 					new Sensor(8, 6),
@@ -211,36 +243,11 @@ public class Lab1 {
 					new Sensor(13, 13)
 				}
 		};
-
-		Track() {}
-
-		protected enum SensorDirection {
-			NORTH(0),
-			EAST(1),
-			SOUTH(2),
-			WEST(3);
-
-			private final int v;
-
-			SensorDirection(int v) {
-				this.v = v;
-			}
-
-			public int v() {
-				return this.v;
-			}
-		}
-
-		static class Sensor {
-			final int x;
-			final int y;
-
-			Sensor(int x, int y) {
-				this.x = x;
-				this.y = y;
-			}
-		}
 	}
+
+	/**
+	 * Train implements the Runnable interface.
+	 */
 
 	class Train implements Runnable {
 
@@ -280,7 +287,7 @@ public class Lab1 {
 					isOnPreferredSouthStation = true;
 				}
 
-				stoppingDistance = getStoppingDistance(initialSpeed);
+				stoppingDistance = getStoppingDistance();
 				while (true) {
 					tSimInterface.setSpeed(trainId, fullSpeed());
 
@@ -496,12 +503,12 @@ public class Lab1 {
 			int status = untilPass ? SensorEvent.ACTIVE : SensorEvent.INACTIVE;
 			SensorEvent se;
 			do {
-				se = tSimInterface.getSensor(trainId);
+				se = this.tSimInterface.getSensor(this.trainId);
 			} while ((se.getXpos() != posX || se.getYpos() != posY) || se.getStatus() == status);
 		}
 
 		private boolean isGoingToSouthStation() {
-			return trainId == 1 && direction == 1 || trainId == 2 && direction == -1;
+			return this.trainId == 1 && this.direction == 1 || this.trainId == 2 && this.direction == -1;
 		}
 
 		private int fullSpeed() {
@@ -510,19 +517,19 @@ public class Lab1 {
 
 
 		private long breakTime() {
-			return 400 + initialSpeed * 32;
+			return 400 + this.initialSpeed * 32;
 		}
 
 		private long waitingTime() {
-			return 1000 + 20 * initialSpeed;
+			return 1000 + 20 * this.initialSpeed;
 		}
 
-		private int getStoppingDistance(int initialSpeed) {
-			if (initialSpeed < 11) {
+		private int getStoppingDistance() {
+			if (this.initialSpeed < 11) {
 				return 1;
-			} else if (initialSpeed < 17) {
+			} else if (this.initialSpeed < 17) {
 				return 2;
-			} else if (initialSpeed < 30) {
+			} else if (this.initialSpeed < 30) {
 				return 3;
 			} else {
 				throw new IllegalArgumentException("Maximum speed is 30");
