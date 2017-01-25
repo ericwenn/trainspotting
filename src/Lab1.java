@@ -459,6 +459,15 @@ public class Lab1 {
 		}
 
 
+		/**
+		 * skipSensorsUntil skips all sensors till given position. It takes a boolean if it should pass the selected sensor or just activate it.
+		 * @param posX describes the selected sensors x position.
+		 * @param posY describes the selected sensors y position.
+		 * @param untilPass describes if the train should pass the sensor or if it should activate it.
+		 * @throws CommandException A TSim exception that could be thrown.
+		 * @throws InterruptedException Thread interruption exception.
+		 */
+
 		private void skipSensorsUntil(int posX, int posY, boolean untilPass) throws CommandException, InterruptedException {
 			int status = untilPass ? SensorEvent.ACTIVE : SensorEvent.INACTIVE;
 			SensorEvent se;
@@ -467,22 +476,46 @@ public class Lab1 {
 			} while ((se.getXpos() != posX || se.getYpos() != posY) || se.getStatus() == status);
 		}
 
+		/**
+		 * isGoingToSouthStation describes to which station the train is currently heading to. Assumes that train 1  starts at
+		 * the north station and that train 2 starts at the south station.
+		 * @return true if the selected train is going to the south station.
+		 */
+
 		private boolean isGoingToSouthStation() {
 			return this.trainId == 1 && this.direction == 1 || this.trainId == 2 && this.direction == -1;
 		}
+
+		/**
+		 * fullSpeed describes the speed according to the system which the train is travelling with.
+		 * @return a positive speed as int if the train is travelling forward or negative if the train is travelling backwards.
+		 */
 
 		private int fullSpeed() {
 			return this.direction * this.initialSpeed;
 		}
 
+		//@todo remove breakTime?
 
 		private long breakTime() {
 			return 400 + this.initialSpeed * 32;
 		}
 
+		/**
+		 * waitingTime calculates how much time the train should wait a station.
+		 * @return the waiting time in millis.
+		 */
+
 		private long waitingTime() {
 			return 1000 + 20 * this.initialSpeed;
 		}
+
+		/**
+		 * getStoppingDistance returns a estimation on how many units the train's stopping distance is.
+		 * @return the stopping distance.
+		 * Can throw IllegalArgumentException if the speed is set too high for this solution to manage. Currently it can
+		 * manage a speed up to 29 units. 
+		 */
 
 		private int getStoppingDistance() {
 			if (this.initialSpeed < 11) {
