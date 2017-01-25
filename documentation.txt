@@ -1,0 +1,102 @@
+Trainspotting (Group 7)
+====
+
+In our solution we use a stateless approach, that is only perform actions based on activating or inactivating sensors. The reason for this is because it would be easier to adapt the solution to a different track by just moving the sensors. We define 6 sections of the track as critical, and use in total 66 sensors to be able to handle speeds up to 29 while retaining good train flow.
+
+
+     *                North station stop
+     *
+xxxxxxxxxxxxxx        North station cross
+x    *
+ x   *
+  x  *
+   x *
+     v                North station entrance
+     *
+     *				  East critical section
+     *
+     *xxxxxx          Overtake east entrance
+     *     x
+     *     x
+     *     x
+     *     x
+     *     x
+     *xxxxxx          Overtake west entrance
+     *
+     *				  West critical section
+     *
+     ^                South station entrance
+     * x
+     *  x
+     *   x
+     *    x
+     *     x
+     *      x         South station stop
+
+* = preferred track
+x = alternative track
+
+
+
+
+
+## Choice of critical sections
+In our first iteration we had 5 critical sections:
+* North Station preferred track
+* East critical section
+* Overtake preferred track
+* West critical section
+* South station preferred track
+
+
+After solving this problem we realised that the north station cross is a critical section aswell, leaving us with a total of 6 critical sections.
+
+
+
+
+## Placement of the sensors and maximum speed
+In our first iteration we had around 2 sensors placed around the every intersection, giving a total of 12 sensors.
+With this setup we could handle speeds up to 15, but we had a problem with slow trains not being overtaken on the overtake in the middle of the track.
+
+In order to figure out the optimal sensor placement and the maximum speed we placed sensors on every track piece on the map. We then tried all speeds from 1 to 35 to figure out the amount of track pieces needed to come to a full halt. The result of this can be seen in the method getStoppingDistance(). 
+
+With speeds over 29 a problem occured at the north station. In order for the trains to stop before the north station exit/entrance they had to start breaking before the north station cross. We didnt try to solve this problem, and instead set the maximum speed to 29. 
+
+After realising which sensors were needed to stop just before the intersections we could remove the obsolete ones, resulting in a total of 66 sensors.
+Altough this number is significantly higher than the hinted amount of sensors needed we kept it at 66. The reason is that with 66 sensors the train flow was significantly improved, since the trains didnt stop long before the actually needed to.
+
+
+## How you tested your solution
+While still improving the code we tested each new improvement with 3 different speed settings:
+* Train 1 fast (25), train 2 slow (5)
+* Train 1 slow (5), train 2 fast (25)
+* Train 1 medium (15), train 2 medium (15)
+
+When we had covered the entire "track logic" we setup 55 different speed settings, all possible speed combinations with a step of 3. 
+
+Some of the combinations:
+* Train 1 (1), train 2 (1)
+* Train 1 (1), train 2 (3)
+* Train 1 (1), train 2 (6)
+* Train 1 (1), train 2 (9)
+...
+...
+...
+* Train 1 (9), train 2 (9)
+* Train 1 (9), train 2 (12)
+....
+* Train 1 (29), train 2 (29)
+
+
+
+
+
+Documentation. 
+In addition to working code you need to provide a convincing argument why your solution is correct. 
+You must document your solution with a plain text file. 
+Give a high-level description of your program and then go into detail about all pieces of code that are essential for correctness. 
+The documentation should include everything needed for easy understanding of the solution. In particular we demand that your documentation contains discussion of:
+* Placement of the sensors
+* Choice of critical sections
+* Maximum train speed and the reason for it
+* How you tested your solution
