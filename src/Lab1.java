@@ -6,6 +6,13 @@ import java.util.concurrent.Semaphore;
 
 import static java.lang.Thread.sleep;
 
+/**
+ * Class Lab1
+ * Constructor takes two Integer objects; speed1 and speed2 are the initialSpeed for each Train.
+ * Starts two threads. Each use the Train Class which implements the Runnable interface.
+ * Each Train takes their id and speed as well as an instance of the Track Class.
+ */
+
 public class Lab1 {
 
 	Lab1(Integer speed1, Integer speed2) {
@@ -43,6 +50,13 @@ public class Lab1 {
 	 * /   \     South station semaphore
 	 * /  S2 \
 	 */
+
+	/**
+	 * The Static inner class Track contains the positions of each Switch and Sensor as well as all 6 semaphores the
+	 * solution needs.
+	 * Each semaphore has neighbouring sensors saved in a matrix of Sensors.  
+	 */
+
 	static class Track {
 
 		static final int[] NORTH_STATION_SWITCH_POSITION = {17, 7};
