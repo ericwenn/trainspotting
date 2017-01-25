@@ -3,13 +3,12 @@ package TSim;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.concurrent.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * The TSimInterface is the intended interface between TSim and the laboration.
  * It handles the extraction of information from TSim and provides methods for
  * manipulating trains, sensors and switches.
- *
  */
 
 public final class TSimInterface {
@@ -26,25 +25,19 @@ public final class TSimInterface {
 	 * Further we maintain a vector of TrainErrorEvents indexed by trainId,
 	 * where a non-null entry means a fatal event has occurred.
 	 */
-
-	private LinkedBlockingQueue<CommandStatus> commandFIFO = new LinkedBlockingQueue<CommandStatus>();
-
-	private AddingArrayList<LinkedBlockingQueue<SensorEvent>> sensorVec = new AddingArrayList<LinkedBlockingQueue<SensorEvent>>();
-
-	private AddingArrayList<TrainErrorEvent> trainVec = new AddingArrayList<TrainErrorEvent>();
-
-	private TSimStream sTSim;
-	private PrintWriter out;
-	private PrintWriter err;
-
 	private static InputStream inStream; // tsim sends us output
 	private static OutputStream outStream; // we send commands to tsim
 	private static OutputStream errStream; // errors for debugging
+	private LinkedBlockingQueue<CommandStatus> commandFIFO = new LinkedBlockingQueue<CommandStatus>();
+	private AddingArrayList<LinkedBlockingQueue<SensorEvent>> sensorVec = new AddingArrayList<LinkedBlockingQueue<SensorEvent>>();
+	private AddingArrayList<TrainErrorEvent> trainVec = new AddingArrayList<TrainErrorEvent>();
+	private TSimStream sTSim;
+	private PrintWriter out;
+	private PrintWriter err;
 	private boolean debug = false;
 
 	/**
 	 * Create a new TSimInterface
-	 *
 	 */
 	private TSimInterface() {
 		this.sTSim = new TSimStream(TSimInterface.inStream);
@@ -62,7 +55,6 @@ public final class TSimInterface {
 	/**
 	 * Returns the single instance (singleton pattern). In first call, creates
 	 * an instance of this class and starts a thread executing its run() method.
-	 *
 	 */
 	public static synchronized TSimInterface getInstance() {
 		if (tsim == null) {
@@ -101,9 +93,7 @@ public final class TSimInterface {
 
 					trainVec.set(trainId, tEvent);
 					reportTrainErrorEvent(tEvent);
-				}
-
-				else if (dInfo instanceof SensorEvent) {
+				} else if (dInfo instanceof SensorEvent) {
 					SensorEvent sEvent = (SensorEvent) dInfo;
 					int trainId = sEvent.getTrainId();
 
@@ -142,14 +132,10 @@ public final class TSimInterface {
 	/**
 	 * Sets the speed of a train.
 	 *
-	 * @param trainId
-	 *            the id of the train to be affected by the command.
-	 * @param speed
-	 *            the new speed of the train.
-	 * @throws CommandException
-	 *             if the supplied id was false (NO_SUCH_TRAIN), if the speed
-	 *             was illegal (ILLEGAL_SPEED) or if the train had crashed.
-	 *
+	 * @param trainId the id of the train to be affected by the command.
+	 * @param speed   the new speed of the train.
+	 * @throws CommandException if the supplied id was false (NO_SUCH_TRAIN), if the speed
+	 *                          was illegal (ILLEGAL_SPEED) or if the train had crashed.
 	 */
 	public synchronized void setSpeed(int trainId, int speed) throws CommandException {
 		TrainErrorEvent tEvent = trainVec.get(trainId);
@@ -175,19 +161,13 @@ public final class TSimInterface {
 	/**
 	 * Sets the direction of the specified switch. Valid directions are
 	 * SWITCH_LEFT and SWITCH_RIGHT.
-	 * 
-	 * @param xPos
-	 *            the x coordinate of the switch.
-	 * @param yPos
-	 *            the y coordinate of the switch.
-	 * @param switchDir
-	 *            the new direction of the switch.
 	 *
-	 * @throws CommandException
-	 *             if the coordinates of the switch were invalid
-	 *             (NO_SUCH_SWITCH) or if there was a train on the switch
-	 *             (TRAIN_ON_SWITCH)
-	 *
+	 * @param xPos      the x coordinate of the switch.
+	 * @param yPos      the y coordinate of the switch.
+	 * @param switchDir the new direction of the switch.
+	 * @throws CommandException if the coordinates of the switch were invalid
+	 *                          (NO_SUCH_SWITCH) or if there was a train on the switch
+	 *                          (TRAIN_ON_SWITCH)
 	 */
 	public synchronized void setSwitch(int xPos, int yPos, int switchDir) throws CommandException {
 
@@ -208,12 +188,9 @@ public final class TSimInterface {
 	/**
 	 * Blocks the calling thread until the specified train passes a sensor.
 	 *
-	 * @param trainId
-	 *            the id of the train to wait for.
+	 * @param trainId the id of the train to wait for.
 	 * @return a SensorEvent representing the information about the event
-	 * @throws CommandException
-	 *             if the train has crashed.
-	 *
+	 * @throws CommandException if the train has crashed.
 	 */
 	public SensorEvent getSensor(int trainId) throws CommandException, InterruptedException {
 		TrainErrorEvent tEvent = trainVec.get(trainId);

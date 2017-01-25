@@ -10,9 +10,7 @@ public class CommandException extends Exception {
 	/**
 	 * Constructs an CommandException with the specified detailed error message.
 	 *
-	 * @param s
-	 *            the detail message.
-	 *
+	 * @param s the detail message.
 	 */
 
 	public CommandException(String s) {
