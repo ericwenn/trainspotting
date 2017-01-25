@@ -5,7 +5,6 @@ import java.io.*;
 /**
  * Reads text from the given input stream connected to TSim and returns a stream
  * of TSimInformation.
- *
  **/
 
 public class TSimStream {
@@ -13,10 +12,8 @@ public class TSimStream {
 
 	/**
 	 * Creates a new TSimStream that reads from the given InputStream.
-	 * 
-	 * @param in
-	 *            the input stream to read text from.
 	 *
+	 * @param in the input stream to read text from.
 	 */
 
 	public TSimStream(InputStream in) {
@@ -30,8 +27,7 @@ public class TSimStream {
 	 * message from TSim.
 	 *
 	 * @return next message from TSim
-	 * @throws UnparsableInputException
-	 *             when the input from TSim is not parsable.
+	 * @throws UnparsableInputException when the input from TSim is not parsable.
 	 **/
 
 	public TSimInformation read() throws UnparsableInputException {
@@ -95,11 +91,9 @@ public class TSimStream {
 	 * throws an exception if the next token was not a string. Upon reading EOF
 	 * the whole system exits.
 	 *
-	 * @param sTokenizer
-	 *            the stream tokenizer to read from.
+	 * @param sTokenizer the stream tokenizer to read from.
 	 * @return the read string.
-	 * @throws UnparsableInputException
-	 *             when the next token was not a string.
+	 * @throws UnparsableInputException when the next token was not a string.
 	 */
 
 	protected String readString(StreamTokenizer sTokenizer) throws UnparsableInputException {
@@ -124,11 +118,9 @@ public class TSimStream {
 	 * throws an exception if the next token was not an integer. Upon reading
 	 * EOF the whole system exits.
 	 *
-	 * @param sTokenizer
-	 *            the stream tokenizer to read from.
+	 * @param sTokenizer the stream tokenizer to read from.
 	 * @return the read integer.
-	 * @throws UnparsableInputException
-	 *             when the next token was not an integer.
+	 * @throws UnparsableInputException when the next token was not an integer.
 	 */
 
 	protected int readInt(StreamTokenizer sTokenizer) throws UnparsableInputException {

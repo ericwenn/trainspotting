@@ -2,7 +2,6 @@ package TSim;
 
 /**
  * Class representing an (erroneous) event for a train.
- *
  */
 
 public class TrainEvent implements TSimInformation {
@@ -18,11 +17,8 @@ public class TrainEvent implements TSimInformation {
 	 * Creates a new TrainEvent for the specified train id and with the
 	 * specified event type.
 	 *
-	 * @param trainId
-	 *            the id of the train affected by the event.
-	 * @param event
-	 *            the type of the event.
-	 *
+	 * @param trainId the id of the train affected by the event.
+	 * @param event   the type of the event.
 	 */
 
 	public TrainEvent(int trainId, int event) {
@@ -34,7 +30,6 @@ public class TrainEvent implements TSimInformation {
 	 * Returns the type of the event.
 	 *
 	 * @return the type of the event.
-	 *
 	 */
 
 	public int getEvent() {
@@ -45,7 +40,6 @@ public class TrainEvent implements TSimInformation {
 	 * Returns the id of the train affected byt the event.
 	 *
 	 * @return the id of the train effected by the event.
-	 *
 	 */
 
 	public int getTrainId() {
@@ -57,22 +51,21 @@ public class TrainEvent implements TSimInformation {
 	 * exception messages.
 	 *
 	 * @return the string representation of the event.
-	 *
 	 */
 
 	public String toString() {
 		String eventString = "unknown event";
 
 		switch (event) {
-		case TRAIN_COLLISION:
-			eventString = " train collision";
-			break;
-		case STOP_COLLISION:
-			eventString = " stop collision";
-			break;
-		case DERAILMENT:
-			eventString = " derailment";
-			break;
+			case TRAIN_COLLISION:
+				eventString = " train collision";
+				break;
+			case STOP_COLLISION:
+				eventString = " stop collision";
+				break;
+			case DERAILMENT:
+				eventString = " derailment";
+				break;
 		}
 
 		return "Fatal error for train " + String.valueOf(trainId) + " :" + eventString;
