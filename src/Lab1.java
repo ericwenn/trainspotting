@@ -257,8 +257,7 @@ public class Lab1 {
 		private TSimInterface tSimInterface;
 		private int direction;
 
-		private boolean isOnPreferredNorthStation = false;
-		private boolean isOnPreferredSouthStation = false;
+		private boolean isOnPreferredTrack = false;
 		private boolean isOnPreferredOvertake = false;
 
 
@@ -282,9 +281,9 @@ public class Lab1 {
 				criticalStationSem = isGoingToSouthStation() ? track.northStationSemaphore : track.southStationSemaphore;
 				criticalStationSem.acquire();
 				if (isGoingToSouthStation()) {
-					isOnPreferredNorthStation = true;
+					isOnPreferredTrack = true;
 				} else {
-					isOnPreferredSouthStation = true;
+					isOnPreferredTrack = true;
 				}
 
 				stoppingDistance = getStoppingDistance();
@@ -293,8 +292,8 @@ public class Lab1 {
 
 					// North station cross
 					if (isGoingToSouthStation()) {
-						stopDirection = isOnPreferredNorthStation ? Track.SensorDirection.WEST : Track.SensorDirection.NORTH;
-						releaseDirection = isOnPreferredNorthStation ? Track.SensorDirection.EAST : Track.SensorDirection.SOUTH;
+						stopDirection = isOnPreferredTrack ? Track.SensorDirection.WEST : Track.SensorDirection.NORTH;
+						releaseDirection = isOnPreferredTrack ? Track.SensorDirection.EAST : Track.SensorDirection.SOUTH;
 
 						stopSensor = track.northStationCrossSensors[stopDirection.v()][stoppingDistance];
 						releaseSensor = track.northStationCrossSensors[releaseDirection.v()][0];
@@ -320,12 +319,12 @@ public class Lab1 {
 
 
 					if (isGoingToSouthStation()) {
-						stopDirection = isOnPreferredNorthStation ? Track.SensorDirection.WEST : Track.SensorDirection.SOUTH;
-						switchDir = isOnPreferredNorthStation ? TSimInterface.SWITCH_RIGHT : TSimInterface.SWITCH_LEFT;
+						stopDirection = isOnPreferredTrack ? Track.SensorDirection.WEST : Track.SensorDirection.SOUTH;
+						switchDir = isOnPreferredTrack ? TSimInterface.SWITCH_RIGHT : TSimInterface.SWITCH_LEFT;
 						releaseDirection = Track.SensorDirection.EAST;
 					} else {
-						stopDirection = isOnPreferredSouthStation ? Track.SensorDirection.EAST : Track.SensorDirection.SOUTH;
-						switchDir = isOnPreferredSouthStation ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
+						stopDirection = isOnPreferredTrack ? Track.SensorDirection.EAST : Track.SensorDirection.SOUTH;
+						switchDir = isOnPreferredTrack ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
 						releaseDirection = Track.SensorDirection.WEST;
 					}
 
@@ -344,7 +343,7 @@ public class Lab1 {
 
 					skipUntil(releaseSensor.x, releaseSensor.y, true);
 
-					if (isGoingToSouthStation() && isOnPreferredNorthStation || !isGoingToSouthStation() && isOnPreferredSouthStation) {
+					if (isGoingToSouthStation() && isOnPreferredTrack || !isGoingToSouthStation() && isOnPreferredTrack) {
 						criticalStationSem.release();
 						// System.out.println("Train "+trainId+" released first station semaphore");
 					}
@@ -425,9 +424,9 @@ public class Lab1 {
 						switchDir = isGoingToSouthStation() ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
 
 						if (isGoingToSouthStation()) {
-							isOnPreferredSouthStation = true;
+							isOnPreferredTrack = true;
 						} else {
-							isOnPreferredNorthStation = true;
+							isOnPreferredTrack = true;
 						}
 
 						releaseDirection = isGoingToSouthStation() ? Track.SensorDirection.EAST : Track.SensorDirection.WEST;
@@ -437,9 +436,9 @@ public class Lab1 {
 						releaseDirection = Track.SensorDirection.SOUTH;
 
 						if (isGoingToSouthStation()) {
-							isOnPreferredSouthStation = false;
+							isOnPreferredTrack = false;
 						} else {
-							isOnPreferredNorthStation = false;
+							isOnPreferredTrack = false;
 						}
 					}
 					releaseSensor = (isGoingToSouthStation() ? track.southStationSwitchSensors : track.northStationSwitchSensors)[releaseDirection.v()][0];
@@ -452,8 +451,8 @@ public class Lab1 {
 					// North station cross
 					if (!isGoingToSouthStation()) {
 
-						stopDirection = isOnPreferredNorthStation ? Track.SensorDirection.EAST : Track.SensorDirection.SOUTH;
-						releaseDirection = isOnPreferredNorthStation ? Track.SensorDirection.WEST : Track.SensorDirection.NORTH;
+						stopDirection = isOnPreferredTrack ? Track.SensorDirection.EAST : Track.SensorDirection.SOUTH;
+						releaseDirection = isOnPreferredTrack ? Track.SensorDirection.WEST : Track.SensorDirection.NORTH;
 
 						stopSensor = track.northStationCrossSensors[stopDirection.v()][stoppingDistance];
 						releaseSensor = track.northStationCrossSensors[releaseDirection.v()][0];
@@ -477,9 +476,9 @@ public class Lab1 {
 					stopDirection = Track.SensorDirection.WEST;
 
 					if (isGoingToSouthStation()) {
-						stopSensor = (isOnPreferredSouthStation ? track.southStationPreferredStopSensors : track.southStationStopSensors)[stopDirection.v()][stoppingDistance];
+						stopSensor = (isOnPreferredTrack ? track.southStationPreferredStopSensors : track.southStationStopSensors)[stopDirection.v()][stoppingDistance];
 					} else {
-						stopSensor = (isOnPreferredNorthStation ? track.northStationPreferredStopSensors : track.northStationStopSensors)[stopDirection.v()][stoppingDistance];
+						stopSensor = (isOnPreferredTrack ? track.northStationPreferredStopSensors : track.northStationStopSensors)[stopDirection.v()][stoppingDistance];
 					}
 
 					skipUntil(stopSensor.x, stopSensor.y, false);
