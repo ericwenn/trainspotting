@@ -3,7 +3,7 @@ Trainspotting (Group 7)
 
 In our solution we use a stateless approach, that is only perform actions based on activating or inactivating sensors. The reason for this is because it would be easier to adapt the solution to a different track by just moving the sensors. We define 6 sections of the track as critical, and use in total 66 sensors to be able to handle speeds up to 29 while retaining good train flow.
 
-
+```
      *                North station stop
      *
 xxxxxxxxxxxxxx        North station cross
@@ -35,7 +35,7 @@ x    *
 
 * = preferred track
 x = alternative track
-
+```
 
 
 
@@ -79,12 +79,12 @@ Some of the combinations:
 * Train 1 (1), train 2 (3)
 * Train 1 (1), train 2 (6)
 * Train 1 (1), train 2 (9)
-...
-...
-...
+* ...
+* ...
+* ...
 * Train 1 (9), train 2 (9)
 * Train 1 (9), train 2 (12)
-....
+* ....
 * Train 1 (29), train 2 (29)
 
 
