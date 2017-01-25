@@ -257,7 +257,7 @@ public class Lab1 {
 		private TSimInterface tSimInterface;
 		private int direction;
 
-		private boolean isOnPreferredTrack = false;
+		private boolean isOnPreferredTrack = true;
 		private boolean isOnPreferredOvertake = false;
 
 
@@ -280,11 +280,6 @@ public class Lab1 {
 			try {
 				criticalStationSem = isGoingToSouthStation() ? track.northStationSemaphore : track.southStationSemaphore;
 				criticalStationSem.acquire();
-				if (isGoingToSouthStation()) {
-					isOnPreferredTrack = true;
-				} else {
-					isOnPreferredTrack = true;
-				}
 
 				stoppingDistance = getStoppingDistance();
 				while (true) {
