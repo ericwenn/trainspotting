@@ -293,7 +293,7 @@ public class Lab1 {
 						stopSensor = track.northStationCrossSensors[stopDirection.v()][stoppingDistance];
 						releaseSensor = track.northStationCrossSensors[releaseDirection.v()][0];
 
-						skipUntil(stopSensor.x, stopSensor.y, false);
+						skipSensorsUntil(stopSensor.x, stopSensor.y, false);
 
 						tSimInterface.setSpeed(trainId, 0);
 
@@ -301,7 +301,7 @@ public class Lab1 {
 
 						tSimInterface.setSpeed(trainId, fullSpeed());
 
-						skipUntil(releaseSensor.x, releaseSensor.y, true);
+						skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
 						track.northStationCrossSemaphore.release();
 
 					}
@@ -325,7 +325,7 @@ public class Lab1 {
 					releaseSensor = (isGoingToSouthStation() ? track.northStationSwitchSensors : track.southStationSwitchSensors)[releaseDirection.v()][0];
 
 
-					skipUntil(stopSensor.x, stopSensor.y, false);
+					skipSensorsUntil(stopSensor.x, stopSensor.y, false);
 					tSimInterface.setSpeed(trainId, 0);
 					criticalSectionSem.acquire();
 
@@ -333,7 +333,7 @@ public class Lab1 {
 					tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
 					tSimInterface.setSpeed(trainId, fullSpeed());
 
-					skipUntil(releaseSensor.x, releaseSensor.y, true);
+					skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
 
 					if (isGoingToSouthStation() && isOnPreferredTrack || !isGoingToSouthStation() && isOnPreferredTrack) {
 						criticalStationSem.release();
@@ -342,13 +342,10 @@ public class Lab1 {
 					// Overtake entrance
 					overtakeSem = track.overtakeSemaphore;
 					switchPos = isGoingToSouthStation() ? Track.OVERTAKE_EAST_SWITCH_POSITION : Track.OVERTAKE_WEST_SWITCH_POSITION;
-					if (isGoingToSouthStation()) {
-						stopDirection = Track.SensorDirection.EAST;
-					} else {
-						stopDirection = Track.SensorDirection.WEST;
-					}
+					stopDirection = isGoingToSouthStation() ? Track.SensorDirection.EAST : Track.SensorDirection.WEST;
+
 					stopSensor = (isGoingToSouthStation() ? track.overtakeEastSwitchSensors : track.overtakeWestSwitchSensors)[stopDirection.v()][1];
-					skipUntil(stopSensor.x, stopSensor.y, false);
+					skipSensorsUntil(stopSensor.x, stopSensor.y, false);
 					if (overtakeSem.tryAcquire()) {
 						switchDir = isGoingToSouthStation() ? TSimInterface.SWITCH_RIGHT : TSimInterface.SWITCH_LEFT;
 						isOnPreferredOvertake = true;
@@ -361,7 +358,7 @@ public class Lab1 {
 					releaseSensor = (isGoingToSouthStation() ? track.overtakeEastSwitchSensors : track.overtakeWestSwitchSensors)[releaseDirection.v()][0];
 
 					tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
-					skipUntil(releaseSensor.x, releaseSensor.y, true);
+					skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
 					criticalSectionSem.release();
 
 					// Overtake exit
@@ -379,7 +376,7 @@ public class Lab1 {
 					stopSensor = (isGoingToSouthStation() ? track.overtakeWestSwitchSensors : track.overtakeEastSwitchSensors)[stopDirection.v()][stoppingDistance];
 					releaseSensor = (isGoingToSouthStation() ? track.overtakeWestSwitchSensors : track.overtakeEastSwitchSensors)[releaseDirection.v()][0];
 
-					skipUntil(stopSensor.x, stopSensor.y, false);
+					skipSensorsUntil(stopSensor.x, stopSensor.y, false);
 					tSimInterface.setSpeed(trainId, 0);
 
 					criticalSectionSem.acquire();
@@ -388,23 +385,18 @@ public class Lab1 {
 					tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
 					tSimInterface.setSpeed(trainId, fullSpeed());
 
-					skipUntil(releaseSensor.x, releaseSensor.y, true);
-					if (isOnPreferredOvertake) {
+					skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
+					if (isOnPreferredOvertake)
 						overtakeSem.release();
-					}
 
 					// Station entrance
 					criticalStationSem = isGoingToSouthStation() ? track.southStationSemaphore : track.northStationSemaphore;
 					switchPos = isGoingToSouthStation() ? Track.SOUTH_STATION_SWITCH_POSITION : Track.NORTH_STATION_SWITCH_POSITION;
 
-					if (isGoingToSouthStation()) {
-						stopDirection = Track.SensorDirection.WEST;
-					} else {
-						stopDirection = Track.SensorDirection.EAST;
-					}
+					stopDirection = isGoingToSouthStation() ? Track.SensorDirection.WEST : Track.SensorDirection.EAST;
 
 					stopSensor = (isGoingToSouthStation() ? track.southStationSwitchSensors : track.northStationSwitchSensors)[stopDirection.v()][1];
-					skipUntil(stopSensor.x, stopSensor.y, false);
+					skipSensorsUntil(stopSensor.x, stopSensor.y, false);
 
 					if (criticalStationSem.tryAcquire()) {
 						switchDir = isGoingToSouthStation() ? TSimInterface.SWITCH_LEFT : TSimInterface.SWITCH_RIGHT;
@@ -419,7 +411,7 @@ public class Lab1 {
 					releaseSensor = (isGoingToSouthStation() ? track.southStationSwitchSensors : track.northStationSwitchSensors)[releaseDirection.v()][0];
 
 					tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
-					skipUntil(releaseSensor.x, releaseSensor.y, true);
+					skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
 					criticalSectionSem.release();
 
 					// North station cross
@@ -431,7 +423,7 @@ public class Lab1 {
 						stopSensor = track.northStationCrossSensors[stopDirection.v()][stoppingDistance];
 						releaseSensor = track.northStationCrossSensors[releaseDirection.v()][0];
 
-						skipUntil(stopSensor.x, stopSensor.y, false);
+						skipSensorsUntil(stopSensor.x, stopSensor.y, false);
 
 						tSimInterface.setSpeed(trainId, 0);
 
@@ -439,7 +431,7 @@ public class Lab1 {
 
 						tSimInterface.setSpeed(trainId, fullSpeed());
 
-						skipUntil(releaseSensor.x, releaseSensor.y, true);
+						skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
 						track.northStationCrossSemaphore.release();
 					}
 
@@ -452,7 +444,7 @@ public class Lab1 {
 						stopSensor = (isOnPreferredTrack ? track.northStationPreferredStopSensors : track.northStationStopSensors)[stopDirection.v()][stoppingDistance];
 					}
 
-					skipUntil(stopSensor.x, stopSensor.y, false);
+					skipSensorsUntil(stopSensor.x, stopSensor.y, false);
 					tSimInterface.setSpeed(trainId, 0);
 
 					sleep(breakTime()); // TODO might not work. Best method ever!
@@ -467,7 +459,7 @@ public class Lab1 {
 		}
 
 
-		private void skipUntil(int posX, int posY, boolean untilPass) throws CommandException, InterruptedException {
+		private void skipSensorsUntil(int posX, int posY, boolean untilPass) throws CommandException, InterruptedException {
 			int status = untilPass ? SensorEvent.ACTIVE : SensorEvent.INACTIVE;
 			SensorEvent se;
 			do {
