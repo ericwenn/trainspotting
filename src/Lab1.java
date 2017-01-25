@@ -257,10 +257,6 @@ public class Lab1 {
 		private TSimInterface tSimInterface;
 		private int direction;
 
-		private boolean isOnPreferredTrack = true;
-		private boolean isOnPreferredOvertake = false;
-
-
 		Train(int trainId, int initialSpeed, Track track) {
 			this.trainId = trainId;
 			this.initialSpeed = initialSpeed;
@@ -271,15 +267,19 @@ public class Lab1 {
 
 		@Override
 		public void run() {
+
 			int[] switchPos;
 			int switchDir, stoppingDistance;
 			Semaphore criticalStationSem, criticalSectionSem, overtakeSem;
 			Track.Sensor stopSensor, releaseSensor;
 			Track.SensorDirection stopDirection, releaseDirection;
+			boolean isOnPreferredTrack, isOnPreferredOvertake;
+
 
 			try {
 				criticalStationSem = isGoingToSouthStation() ? track.northStationSemaphore : track.southStationSemaphore;
 				criticalStationSem.acquire();
+				isOnPreferredTrack = true;
 
 				stoppingDistance = getStoppingDistance();
 				while (true) {
@@ -449,7 +449,6 @@ public class Lab1 {
 
 					sleep(breakTime()); // TODO might not work. Best method ever!
 					sleep(waitingTime());
-
 
 					direction *= -1; // change direction
 				}
