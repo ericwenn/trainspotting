@@ -272,19 +272,38 @@ public class Lab1 {
 			this.direction = 1;
 		}
 
-		void handleBrake(Semaphore sem, boolean shouldAquire, boolean skipSensors) throws CommandException, InterruptedException {
-			skipSensorsUntil(stopSensor.x, stopSensor.y, skipSensors);
+		/**
+		 * handleBrake brakes the train in case the upcoming critical section is blocked. It aquires the semaphore or waits for it to be available.
+		 * @param sem Is the semaphore for the upcoming critical section.
+		 * @throws CommandException Exception from TSim
+		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
+		 */
+
+		void handleBrake(Semaphore sem) throws CommandException, InterruptedException {
+			skipSensorsUntil(stopSensor.x, stopSensor.y, false);
 			tSimInterface.setSpeed(trainId, 0);
-			if (shouldAquire)
-				sem.acquire();
+			sem.acquire();
 		}
 
-		void handleRestart(Semaphore sem, boolean shouldRelease, boolean skipSensors) throws CommandException, InterruptedException {
+		/**
+		 * handelRestart sets the train to its fullspeed and releases the semaphore if it should be released.
+		 * @param sem The semaphore that should be released
+		 * @param shouldRelease If the train hasn't been on a parallel track then it should release the critical semaphore. Otherwise not.
+		 * @throws CommandException Exception from TSim
+		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
+		 */
+
+
+		void handleRestart(Semaphore sem, boolean shouldRelease) throws CommandException, InterruptedException {
 			tSimInterface.setSpeed(trainId, fullSpeed());
-			skipSensorsUntil(releaseSensor.x, releaseSensor.y, skipSensors);
+			skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
 			if (shouldRelease)
 				sem.release();
 		}
+
+		/**
+		 * run is the method that the train will run once Lab1.java have started train1.start()
+		 */
 
 		@Override
 		public void run() {
@@ -300,12 +319,18 @@ public class Lab1 {
 					goToOvertakeExit();
 					goToStationEntrance();
 					goToNorthStationCross();
-					stationStop();
+					stopAtStation();
 				}
 			} catch (InterruptedException | CommandException err) {
 				err.printStackTrace();
 			}
 		}
+
+		/**
+		 *
+		 * @throws CommandException
+		 * @throws InterruptedException
+		 */
 
 		void goToNorthSectionCross() throws CommandException, InterruptedException {
 			// North station cross
@@ -316,11 +341,17 @@ public class Lab1 {
 				stopSensor = track.northStationCrossSensors[stopDirection.v()][stoppingDistance];
 				releaseSensor = track.northStationCrossSensors[releaseDirection.v()][0];
 
-				handleBrake(track.northStationCrossSemaphore, true, false);
-				handleRestart(track.northStationCrossSemaphore, true, true);
+				handleBrake(track.northStationCrossSemaphore);
+				handleRestart(track.northStationCrossSemaphore, true);
 
 			}
 		}
+
+		/**
+		 *
+		 * @throws InterruptedException
+		 * @throws CommandException
+		 */
 
 		void goToEntranceCriticalSection() throws InterruptedException, CommandException {
 			// Entrance first critical section
@@ -341,10 +372,16 @@ public class Lab1 {
 			stopSensor = (isGoingToSouthStation() ? track.northStationSwitchSensors : track.southStationSwitchSensors)[stopDirection.v()][stoppingDistance];
 			releaseSensor = (isGoingToSouthStation() ? track.northStationSwitchSensors : track.southStationSwitchSensors)[releaseDirection.v()][0];
 
-			handleBrake(criticalSectionSem, true, false);
+			handleBrake(criticalSectionSem);
 			tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
-			handleRestart(criticalStationSem, isGoingToSouthStation() && isOnPreferredTrack || !isGoingToSouthStation() && isOnPreferredTrack, true);
+			handleRestart(criticalStationSem, isGoingToSouthStation() && isOnPreferredTrack || !isGoingToSouthStation() && isOnPreferredTrack);
 		}
+
+		/**
+		 *
+		 * @throws CommandException
+		 * @throws InterruptedException
+		 */
 
 		void goToOvertakeSection() throws CommandException, InterruptedException {
 			// Overtake entrance
@@ -366,8 +403,14 @@ public class Lab1 {
 			releaseSensor = (isGoingToSouthStation() ? track.overtakeEastSwitchSensors : track.overtakeWestSwitchSensors)[releaseDirection.v()][0];
 
 			tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
-			handleRestart(criticalSectionSem, true, true);
+			handleRestart(criticalSectionSem, true);
 		}
+
+		/**
+		 *
+		 * @throws CommandException
+		 * @throws InterruptedException
+		 */
 
 		void goToOvertakeExit() throws CommandException, InterruptedException {
 			// Overtake exit
@@ -385,10 +428,16 @@ public class Lab1 {
 			stopSensor = (isGoingToSouthStation() ? track.overtakeWestSwitchSensors : track.overtakeEastSwitchSensors)[stopDirection.v()][stoppingDistance];
 			releaseSensor = (isGoingToSouthStation() ? track.overtakeWestSwitchSensors : track.overtakeEastSwitchSensors)[releaseDirection.v()][0];
 
-			handleBrake(criticalSectionSem, true, false);
+			handleBrake(criticalSectionSem);
 			tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
-			handleRestart(overtakeSem, isOnPreferredOvertake, true);
+			handleRestart(overtakeSem, isOnPreferredOvertake);
 		}
+
+		/**
+		 *
+		 * @throws CommandException
+		 * @throws InterruptedException
+		 */
 
 		void goToStationEntrance() throws CommandException, InterruptedException {
 			// Station entrance
@@ -413,8 +462,14 @@ public class Lab1 {
 			releaseSensor = (isGoingToSouthStation() ? track.southStationSwitchSensors : track.northStationSwitchSensors)[releaseDirection.v()][0];
 
 			tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
-			handleRestart(criticalSectionSem, true, true);
+			handleRestart(criticalSectionSem, true);
 		}
+
+		/**
+		 *
+		 * @throws CommandException
+		 * @throws InterruptedException
+		 */
 
 		void goToNorthStationCross() throws CommandException, InterruptedException {
 			// North station cross
@@ -426,12 +481,18 @@ public class Lab1 {
 				stopSensor = track.northStationCrossSensors[stopDirection.v()][stoppingDistance];
 				releaseSensor = track.northStationCrossSensors[releaseDirection.v()][0];
 
-				handleBrake(track.northStationCrossSemaphore, true, false);
-				handleRestart(track.northStationCrossSemaphore, true, true);
+				handleBrake(track.northStationCrossSemaphore);
+				handleRestart(track.northStationCrossSemaphore, true);
 			}
 		}
 
-		void stationStop() throws CommandException, InterruptedException {
+		/**
+		 *
+		 * @throws CommandException
+		 * @throws InterruptedException
+		 */
+
+		void stopAtStation() throws CommandException, InterruptedException {
 			// Station stop
 			stopDirection = Track.SensorDirection.WEST;
 
@@ -488,6 +549,11 @@ public class Lab1 {
 		}
 
 		//@todo remove breakTime?
+
+		/**
+		 * 
+		 * @return
+		 */
 
 		private long breakTime() {
 			return 400 + this.initialSpeed * 32;
