@@ -272,12 +272,18 @@ public class Lab1 {
 		Track.SensorDirection stopDirection, releaseDirection;
 		boolean isOnPreferredTrack = true, isOnPreferredOvertake;
 
-		void handleBrake(Semaphore sem, boolean shouldAquire) {
-
+		void handleBrake(Semaphore sem, boolean shouldAquire, boolean skipSensors) throws CommandException, InterruptedException {
+			skipSensorsUntil(stopSensor.x, stopSensor.y, skipSensors);
+			tSimInterface.setSpeed(trainId, 0);
+			if (shouldAquire)
+				sem.acquire();
 		}
 
-		void handleRestart(Semaphore sem, boolean shouldRelease) {
-
+		void handleRestart(Semaphore sem, boolean shouldRelease, boolean skipSensors) throws CommandException, InterruptedException {
+			tSimInterface.setSpeed(trainId, fullSpeed());
+			skipSensorsUntil(releaseSensor.x, releaseSensor.y, skipSensors);
+			if (shouldRelease)
+				sem.release();
 		}
 
 		@Override
@@ -298,16 +304,8 @@ public class Lab1 {
 						stopSensor = track.northStationCrossSensors[stopDirection.v()][stoppingDistance];
 						releaseSensor = track.northStationCrossSensors[releaseDirection.v()][0];
 
-						skipSensorsUntil(stopSensor.x, stopSensor.y, false);
-
-						tSimInterface.setSpeed(trainId, 0);
-
-						track.northStationCrossSemaphore.acquire();
-
-						tSimInterface.setSpeed(trainId, fullSpeed());
-
-						skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
-						track.northStationCrossSemaphore.release();
+						handleBrake(track.northStationCrossSemaphore, true, false);
+						handleRestart(track.northStationCrossSemaphore, true, true);
 
 					}
 
@@ -329,20 +327,9 @@ public class Lab1 {
 					stopSensor = (isGoingToSouthStation() ? track.northStationSwitchSensors : track.southStationSwitchSensors)[stopDirection.v()][stoppingDistance];
 					releaseSensor = (isGoingToSouthStation() ? track.northStationSwitchSensors : track.southStationSwitchSensors)[releaseDirection.v()][0];
 
-
-					skipSensorsUntil(stopSensor.x, stopSensor.y, false);
-					tSimInterface.setSpeed(trainId, 0);
-					criticalSectionSem.acquire();
-
-
+					handleBrake(criticalSectionSem, true, false);
 					tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
-					tSimInterface.setSpeed(trainId, fullSpeed());
-
-					skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
-
-					if (isGoingToSouthStation() && isOnPreferredTrack || !isGoingToSouthStation() && isOnPreferredTrack) {
-						criticalStationSem.release();
-					}
+					handleRestart(criticalStationSem, isGoingToSouthStation() && isOnPreferredTrack || !isGoingToSouthStation() && isOnPreferredTrack, true);
 
 					// Overtake entrance
 					overtakeSem = track.overtakeSemaphore;
@@ -363,8 +350,7 @@ public class Lab1 {
 					releaseSensor = (isGoingToSouthStation() ? track.overtakeEastSwitchSensors : track.overtakeWestSwitchSensors)[releaseDirection.v()][0];
 
 					tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
-					skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
-					criticalSectionSem.release();
+					handleRestart(criticalSectionSem, true, true);
 
 					// Overtake exit
 					criticalSectionSem = isGoingToSouthStation() ? track.westCriticalSectionSemaphore : track.eastCriticalSectionSemaphore;
@@ -381,18 +367,9 @@ public class Lab1 {
 					stopSensor = (isGoingToSouthStation() ? track.overtakeWestSwitchSensors : track.overtakeEastSwitchSensors)[stopDirection.v()][stoppingDistance];
 					releaseSensor = (isGoingToSouthStation() ? track.overtakeWestSwitchSensors : track.overtakeEastSwitchSensors)[releaseDirection.v()][0];
 
-					skipSensorsUntil(stopSensor.x, stopSensor.y, false);
-					tSimInterface.setSpeed(trainId, 0);
-
-					criticalSectionSem.acquire();
-
-
+					handleBrake(criticalSectionSem, true, false);
 					tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
-					tSimInterface.setSpeed(trainId, fullSpeed());
-
-					skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
-					if (isOnPreferredOvertake)
-						overtakeSem.release();
+					handleRestart(overtakeSem, isOnPreferredOvertake, true);
 
 					// Station entrance
 					criticalStationSem = isGoingToSouthStation() ? track.southStationSemaphore : track.northStationSemaphore;
@@ -416,8 +393,7 @@ public class Lab1 {
 					releaseSensor = (isGoingToSouthStation() ? track.southStationSwitchSensors : track.northStationSwitchSensors)[releaseDirection.v()][0];
 
 					tSimInterface.setSwitch(switchPos[0], switchPos[1], switchDir);
-					skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
-					criticalSectionSem.release();
+					handleRestart(criticalSectionSem, true, true);
 
 					// North station cross
 					if (!isGoingToSouthStation()) {
@@ -428,16 +404,8 @@ public class Lab1 {
 						stopSensor = track.northStationCrossSensors[stopDirection.v()][stoppingDistance];
 						releaseSensor = track.northStationCrossSensors[releaseDirection.v()][0];
 
-						skipSensorsUntil(stopSensor.x, stopSensor.y, false);
-
-						tSimInterface.setSpeed(trainId, 0);
-
-						track.northStationCrossSemaphore.acquire();
-
-						tSimInterface.setSpeed(trainId, fullSpeed());
-
-						skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
-						track.northStationCrossSemaphore.release();
+						handleBrake(track.northStationCrossSemaphore, true, false);
+						handleRestart(track.northStationCrossSemaphore, true, true);
 					}
 
 					// Station stop
