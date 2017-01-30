@@ -265,21 +265,26 @@ public class Lab1 {
 			this.direction = 1;
 		}
 
+		int[] switchPos;
+		int switchDir, stoppingDistance;
+		Semaphore criticalStationSem, criticalSectionSem, overtakeSem;
+		Track.Sensor stopSensor, releaseSensor;
+		Track.SensorDirection stopDirection, releaseDirection;
+		boolean isOnPreferredTrack = true, isOnPreferredOvertake;
+
+		void handleBrake(Semaphore sem, boolean shouldAquire) {
+
+		}
+
+		void handleRestart(Semaphore sem, boolean shouldRelease) {
+
+		}
+
 		@Override
 		public void run() {
-
-			int[] switchPos;
-			int switchDir, stoppingDistance;
-			Semaphore criticalStationSem, criticalSectionSem, overtakeSem;
-			Track.Sensor stopSensor, releaseSensor;
-			Track.SensorDirection stopDirection, releaseDirection;
-			boolean isOnPreferredTrack, isOnPreferredOvertake;
-
-
 			try {
 				criticalStationSem = isGoingToSouthStation() ? track.northStationSemaphore : track.southStationSemaphore;
 				criticalStationSem.acquire();
-				isOnPreferredTrack = true;
 
 				stoppingDistance = getStoppingDistance();
 				while (true) {
