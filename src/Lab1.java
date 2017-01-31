@@ -9,7 +9,7 @@ import static java.lang.Thread.sleep;
 /**
  * Class Lab1
  * Constructor takes two Integer objects; speed1 and speed2 are the initialSpeed for each Train.
- * Starts two threads. Each use the Train Class which implements the Runnable interface.
+ * Starts two threads. Each use {@link Train} which implements {@link Runnable}.
  * Each Train takes their id and speed as well as an instance of the Track Class.
  */
 
@@ -276,34 +276,7 @@ public class Lab1 {
 			this.direction = 1;
 		}
 
-		/**
-		 * handleBrake brakes the train in case the upcoming critical section is blocked. It acquires the semaphore or waits for it to be available.
-		 * @param sem Is the semaphore for the upcoming critical section.
-		 * @throws CommandException Exception from TSim
-		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
-		 */
 
-		void handleBrake(Semaphore sem) throws CommandException, InterruptedException {
-			skipSensorsUntil(stopSensor.x, stopSensor.y, false);
-			tSimInterface.setSpeed(trainId, 0);
-			sem.acquire();
-		}
-
-		/**
-		 * handelRestart sets the train to its full speed and releases the semaphore if it should be released.
-		 * @param sem The semaphore that should be released
-		 * @param shouldRelease If the train hasn't been on a parallel track then it should release the critical semaphore. Otherwise not.
-		 * @throws CommandException Exception from TSim
-		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
-		 */
-
-
-		void handleRestart(Semaphore sem, boolean shouldRelease) throws CommandException, InterruptedException {
-			tSimInterface.setSpeed(trainId, fullSpeed());
-			skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
-			if (shouldRelease)
-				sem.release();
-		}
 
 		/**
 		 * run is the method that the train will run once Lab1.java have started train1.start()
@@ -523,10 +496,41 @@ public class Lab1 {
 			skipSensorsUntil(stopSensor.x, stopSensor.y, false);
 			tSimInterface.setSpeed(trainId, 0);
 
-			sleep(breakTime()); // TODO might not work.
+			sleep(breakTime());
 			sleep(waitingTime());
 
 			direction *= -1; // change direction
+		}
+
+
+
+		/**
+		 * handleBrake brakes the train in case the upcoming critical section is blocked. It acquires the semaphore or waits for it to be available.
+		 * @param sem Is the semaphore for the upcoming critical section.
+		 * @throws CommandException Exception from TSim
+		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
+		 */
+
+		void handleBrake(Semaphore sem) throws CommandException, InterruptedException {
+			skipSensorsUntil(stopSensor.x, stopSensor.y, false);
+			tSimInterface.setSpeed(trainId, 0);
+			sem.acquire();
+		}
+
+		/**
+		 * handelRestart sets the train to its full speed and releases the semaphore if it should be released.
+		 * @param sem The semaphore that should be released
+		 * @param shouldRelease If the train hasn't been on a parallel track then it should release the critical semaphore. Otherwise not.
+		 * @throws CommandException Exception from TSim
+		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
+		 */
+
+
+		void handleRestart(Semaphore sem, boolean shouldRelease) throws CommandException, InterruptedException {
+			tSimInterface.setSpeed(trainId, fullSpeed());
+			skipSensorsUntil(releaseSensor.x, releaseSensor.y, true);
+			if (shouldRelease)
+				sem.release();
 		}
 
 
