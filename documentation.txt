@@ -41,8 +41,9 @@ x = alternative track
 
 
 ## Choice of critical sections
-In our first iteration we had 5 critical sections:
+In our first iteration we had 6 critical sections:
 * North Station preferred track
+* North Station Crossing
 * East critical section
 * Overtake preferred track
 * West critical section
