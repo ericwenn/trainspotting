@@ -246,7 +246,11 @@ public class Lab1 {
 	}
 
 	/**
-	 * Train implements the Runnable interface.
+	 * The Train class represents a train as a thread. Each thread has a trainId, initialSpeed when they are initiated from Lab1.java
+	 * Each train use the same track and the same tSimInterface.
+	 * The train class has instances of the critical semaphores and the sensors as well as some flags to help navigate
+	 * such as isOnPreferredTrack and isOnPreferredOvertake which are used when a train is on a parallel track in a critical section.
+	 * stopSensor and releaseSensor are used to help smooth the acquiring and releasing of critical sections.
 	 */
 
 	class Train implements Runnable {
@@ -303,6 +307,7 @@ public class Lab1 {
 
 		/**
 		 * run is the method that the train will run once Lab1.java have started train1.start()
+		 * run consists of a infinite while loop that iterates through each section of the track.
 		 */
 
 		@Override
@@ -327,9 +332,11 @@ public class Lab1 {
 		}
 
 		/**
-		 *
-		 * @throws CommandException
-		 * @throws InterruptedException
+		 * goToNorthSectionCross describes the idea behind the first critical section in the track. Two trains can collide
+		 * at the north station crossing. When a train passes stopSensor it will try to acquire the semaphore at north station crossing.
+		 * If it can't acquire the semaphore it will stop until the other train has passed.
+		 * @throws CommandException Exception from TSim
+		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
 
 		void goToNorthSectionCross() throws CommandException, InterruptedException {
@@ -349,8 +356,8 @@ public class Lab1 {
 
 		/**
 		 *
-		 * @throws InterruptedException
-		 * @throws CommandException
+		 * @throws CommandException Exception from TSim
+		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
 
 		void goToEntranceCriticalSection() throws InterruptedException, CommandException {
@@ -379,8 +386,8 @@ public class Lab1 {
 
 		/**
 		 *
-		 * @throws CommandException
-		 * @throws InterruptedException
+		 * @throws CommandException Exception from TSim
+		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
 
 		void goToOvertakeSection() throws CommandException, InterruptedException {
@@ -408,8 +415,8 @@ public class Lab1 {
 
 		/**
 		 *
-		 * @throws CommandException
-		 * @throws InterruptedException
+		 * @throws CommandException Exception from TSim
+		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
 
 		void goToOvertakeExit() throws CommandException, InterruptedException {
@@ -435,8 +442,8 @@ public class Lab1 {
 
 		/**
 		 *
-		 * @throws CommandException
-		 * @throws InterruptedException
+		 * @throws CommandException Exception from TSim
+		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
 
 		void goToStationEntrance() throws CommandException, InterruptedException {
@@ -467,8 +474,8 @@ public class Lab1 {
 
 		/**
 		 *
-		 * @throws CommandException
-		 * @throws InterruptedException
+		 * @throws CommandException Exception from TSim
+		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
 
 		void goToNorthStationCross() throws CommandException, InterruptedException {
@@ -488,8 +495,8 @@ public class Lab1 {
 
 		/**
 		 *
-		 * @throws CommandException
-		 * @throws InterruptedException
+		 * @throws CommandException Exception from TSim
+		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
 
 		void stopAtStation() throws CommandException, InterruptedException {
@@ -505,7 +512,7 @@ public class Lab1 {
 			skipSensorsUntil(stopSensor.x, stopSensor.y, false);
 			tSimInterface.setSpeed(trainId, 0);
 
-			sleep(breakTime()); // TODO might not work. Best method ever!
+			sleep(breakTime()); // TODO might not work.
 			sleep(waitingTime());
 
 			direction *= -1; // change direction
@@ -548,11 +555,9 @@ public class Lab1 {
 			return this.direction * this.initialSpeed;
 		}
 
-		//@todo remove breakTime?
-
 		/**
-		 * 
-		 * @return
+		 * Calculates some extra time so that the train has time to stop before changing direction.
+		 * @return time in millis
 		 */
 
 		private long breakTime() {
