@@ -277,7 +277,7 @@ public class Lab1 {
 		}
 
 		/**
-		 * handleBrake brakes the train in case the upcoming critical section is blocked. It aquires the semaphore or waits for it to be available.
+		 * handleBrake brakes the train in case the upcoming critical section is blocked. It acquires the semaphore or waits for it to be available.
 		 * @param sem Is the semaphore for the upcoming critical section.
 		 * @throws CommandException Exception from TSim
 		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
@@ -290,7 +290,7 @@ public class Lab1 {
 		}
 
 		/**
-		 * handelRestart sets the train to its fullspeed and releases the semaphore if it should be released.
+		 * handelRestart sets the train to its full speed and releases the semaphore if it should be released.
 		 * @param sem The semaphore that should be released
 		 * @param shouldRelease If the train hasn't been on a parallel track then it should release the critical semaphore. Otherwise not.
 		 * @throws CommandException Exception from TSim
@@ -421,7 +421,7 @@ public class Lab1 {
 		}
 
 		/**
-		 * goToOvertakeExit describes the third critical section. If it can acquire the critical section then it will pass trough otherwise it will
+		 * goToOvertakeExit describes the fourth critical section. If it can acquire the critical section then it will pass trough otherwise it will
 		 * wait for the other train to choose the other available track in the overtake.
 		 * @throws CommandException Exception from TSim
 		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
@@ -449,7 +449,8 @@ public class Lab1 {
 		}
 
 		/**
-		 *
+		 * goToStationEntrance describes the fifth critical section. If the train can acquire the station semaphore then it will
+		 * choose the preferred track otherwise it will chose the parallel track.
 		 * @throws CommandException Exception from TSim
 		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
@@ -481,11 +482,12 @@ public class Lab1 {
 		}
 
 		/**
-		 *
+		 * goToNorthStationCross is closely related to goToNorthSectionCross. Tries to acquire the crossing semaphore, if
+		 * it can then it will pass otherwise it will wait for the semaphore to be available.
 		 * @throws CommandException Exception from TSim
 		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
-		
+
 
 		void goToNorthStationCross() throws CommandException, InterruptedException {
 			// North station cross
@@ -503,7 +505,7 @@ public class Lab1 {
 		}
 
 		/**
-		 *
+		 * stopAtStation describes the last part of the track that checks which sensor is to be used to start braking the train.
 		 * @throws CommandException Exception from TSim
 		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
@@ -566,7 +568,7 @@ public class Lab1 {
 
 		/**
 		 * Calculates some extra time so that the train has time to stop before changing direction.
-		 * @return time in millis
+		 * @return time in millis.
 		 */
 
 		private long breakTime() {
