@@ -354,8 +354,12 @@ public class Lab1 {
 			}
 		}
 
+
 		/**
-		 *
+		 * goToEntranceCriticalSection describes the second critical section which is the entrance of the critical section after the station.
+		 * The train collects all information about sensors, directions and switch positions. The train checks if it can acquire
+		 * the semaphore representing the critical section otherwise it will wait until it can. It only releases the station
+		 * semaphore if it's on the preferredTrack (not the parallel track).
 		 * @throws CommandException Exception from TSim
 		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
@@ -385,7 +389,10 @@ public class Lab1 {
 		}
 
 		/**
-		 *
+		 * goToOvertakeSection describes the third critical section. The train collects all information needed and try's to
+		 * acquire the semaphore representing the preferred track. If it can then it pass through the entrance and release the
+		 * first critical section semaphore. If it's on the preferred track it sets a boolean flag so that the other train
+		 * chooses the parallel track.
 		 * @throws CommandException Exception from TSim
 		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
@@ -414,7 +421,8 @@ public class Lab1 {
 		}
 
 		/**
-		 *
+		 * goToOvertakeExit describes the third critical section. If it can acquire the critical section then it will pass trough otherwise it will
+		 * wait for the other train to choose the other available track in the overtake.
 		 * @throws CommandException Exception from TSim
 		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
@@ -477,6 +485,7 @@ public class Lab1 {
 		 * @throws CommandException Exception from TSim
 		 * @throws InterruptedException If the thread is interrupted it will fire an exception.
 		 */
+		
 
 		void goToNorthStationCross() throws CommandException, InterruptedException {
 			// North station cross
